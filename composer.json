@@ -1,0 +1,19 @@
+{
+    "name": "pcore/http-server",
+    "type": "library",
+    "homepage": "https://github.com/pcore-framework/http-server",
+    "authors": [
+        {
+            "name": "Magomedcoder",
+            "email": "info@magomedcoder.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PCore\\HttpServer\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.0"
+    }
+}
