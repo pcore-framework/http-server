@@ -8,12 +8,18 @@
             "email": "info@magomedcoder.ru"
         }
     ],
+    "require": {
+        "php": "^8.0",
+        "pcore/http-message": "dev-dev",
+        "pcore/utils": "dev-dev",
+        "pcore/routing": "dev-dev",
+        "psr/http-server-middleware": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/event-dispatcher": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "PCore\\HttpServer\\": "src/"
         }
-    },
-    "require": {
-        "php": "^8.0"
     }
 }
