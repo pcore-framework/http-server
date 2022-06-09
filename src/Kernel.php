@@ -22,7 +22,10 @@ class Kernel
     /**
      * Глобальное промежуточное программное обеспечение
      */
-    protected array $middlewares = [];
+    protected array $middlewares = [
+        'PCore\HttpServer\Middlewares\ExceptionHandleMiddleware',
+        'PCore\HttpServer\Middlewares\RoutingMiddleware'
+    ];
 
     /**
      * @param RouteCollector $routeCollector сборщик маршрутов
