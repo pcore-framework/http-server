@@ -1,6 +1,7 @@
 {
     "name": "pcore/http-server",
     "type": "library",
+    "license": "MIT",
     "homepage": "https://github.com/pcore-framework/http-server",
     "authors": [
         {
