@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PCore\HttpServer\ResponseEmitter;
 
 use PCore\HttpMessage\Cookie;
-use PCore\HttpMessage\Stream\{FileStream, StringStream};
+use PCore\HttpMessage\Stream\FileStream;
 use PCore\HttpServer\Contracts\ResponseEmitterInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response;
@@ -39,11 +39,8 @@ class SwooleResponseEmitter implements ResponseEmitterInterface
                 case $body instanceof FileStream:
                     $sender->sendfile($body->getMetadata('uri'), $body->tell(), max($body->getLength(), 0));
                     break;
-                case $body instanceof StringStream:
-                    $sender->end($body->getContents());
-                    break;
                 default:
-                    $sender->end();
+                    $sender->end($body->getContents());
             }
             $body?->close();
         } catch (\Throwable $throwable) {

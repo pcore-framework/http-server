@@ -70,9 +70,8 @@ class ExceptionHandleMiddleware implements MiddlewareInterface
             [],
             sprintf(
                 <<<EOT
-<html><head><title>%s</title></head><body><pre style="font-size: 1.5em; white-space: break-spaces"><p><b>%s</b></p><b>Stack Trace</b><br>%s</pre></body></html>
-EOT
-                ,
+<html><head><meta charset="utf-8"><title>%s</title></head><body><pre style="font-size: 1.5em; white-space: break-spaces"><p><b>%s</b></p><b>Трассировка</b><br>%s</pre></body></html>
+EOT,
                 $message,
                 $message,
                 $throwable->getTraceAsString(),
