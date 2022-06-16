@@ -14,6 +14,7 @@
         "pcore/http-message": "dev-dev",
         "pcore/utils": "dev-dev",
         "pcore/routing": "dev-dev",
+        "pcore/di": "dev-dev",
         "psr/http-server-middleware": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/event-dispatcher": "^1.0"

@@ -47,8 +47,6 @@ class RequestHandler implements RequestHandlerInterface
     {
         /** @var Route $route */
         $route = $request->getAttribute(Route::class);
-        $params = $route->getParameters();
-        $params[] = $request;
         $action = $route->getAction();
         if (is_string($action)) {
             $action = explode('@', $action, 2);
@@ -60,7 +58,9 @@ class RequestHandler implements RequestHandlerInterface
         if (!is_callable($action)) {
             throw new BadMethodCallException('Данное действие не является вызываемым значением.');
         }
-        return $this->container->call($action, $params);
+        $parameters = $route->getParameters();
+        $parameters['request'] = $request;
+        return $this->container->call($action, $parameters);
     }
 
     /**

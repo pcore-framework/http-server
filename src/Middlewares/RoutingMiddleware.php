@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace PCore\HttpServer\Middlewares;
 
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
