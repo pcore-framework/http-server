@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace PCore\HttpServer;
 
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
-use BadMethodCallException;
 use PCore\HttpServer\Exceptions\InvalidMiddlewareException;
 use PCore\Routing\Route;
 use Psr\Container\{ContainerInterface, ContainerExceptionInterface};
@@ -50,13 +49,6 @@ class RequestHandler implements RequestHandlerInterface
         $action = $route->getAction();
         if (is_string($action)) {
             $action = explode('@', $action, 2);
-        }
-        if (!is_callable($action) && is_array($action)) {
-            [$controller, $action] = $action;
-            $action = [$this->container->make($controller), $action];
-        }
-        if (!is_callable($action)) {
-            throw new BadMethodCallException('Данное действие не является вызываемым значением.');
         }
         $parameters = $route->getParameters();
         $parameters['request'] = $request;
