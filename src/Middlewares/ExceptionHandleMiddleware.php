@@ -33,8 +33,7 @@ class ExceptionHandleMiddleware implements MiddlewareInterface
         try {
             return $handler->handle($request);
         } catch (Throwable $throwable) {
-            $this->reportException($throwable, $request);
-            return $this->renderException($throwable, $request);
+            return $this->handleException($throwable, $request);
         }
     }
 
@@ -42,9 +41,8 @@ class ExceptionHandleMiddleware implements MiddlewareInterface
      * @param Throwable $throwable
      * @param ServerRequestInterface $request
      * @return ResponseInterface
-     * @throws Throwable
      */
-    final public function handleException(Throwable $throwable, ServerRequestInterface $request): ResponseInterface
+    public function handleException(Throwable $throwable, ServerRequestInterface $request): ResponseInterface
     {
         $this->reportException($throwable, $request);
         return $this->renderException($throwable, $request);
