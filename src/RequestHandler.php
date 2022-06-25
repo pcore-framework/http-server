@@ -10,6 +10,7 @@ use PCore\Routing\Route;
 use Psr\Container\{ContainerInterface, ContainerExceptionInterface};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use ReflectionException;
+use PCore\Routing\Exceptions\RouteNotFoundException;
 
 /**
  * Class RequestHandler
@@ -40,19 +41,21 @@ class RequestHandler implements RequestHandlerInterface
 
     /**
      * @throws ContainerExceptionInterface
-     * @throws ReflectionException
+     * @throws ReflectionException|RouteNotFoundException
      */
     protected function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
         /** @var Route $route */
-        $route = $request->getAttribute(Route::class);
-        $action = $route->getAction();
-        if (is_string($action)) {
-            $action = explode('@', $action, 2);
+        if ($route = $request->getAttribute(Route::class)) {
+            $action = $route->getAction();
+            if (is_string($action)) {
+                $action = explode('@', $action, 2);
+            }
+            $parameters = $route->getParameters();
+            $parameters['request'] = $request;
+            return $this->container->call($action, $parameters);
         }
-        $parameters = $route->getParameters();
-        $parameters['request'] = $request;
-        return $this->container->call($action, $parameters);
+        throw new RouteNotFoundException('Маршрут не совпадает', 404);
     }
 
     /**
