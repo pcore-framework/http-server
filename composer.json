@@ -11,10 +11,10 @@
     ],
     "require": {
         "php": "^8.0",
-        "pcore/http-message": "dev-dev",
-        "pcore/utils": "dev-dev",
-        "pcore/routing": "dev-dev",
-        "pcore/di": "dev-dev",
+        "pcore/http-message": "v1.0.0",
+        "pcore/utils": "v1.0.0",
+        "pcore/routing": "v1.0.0",
+        "pcore/di": "v1.0.0",
         "psr/http-server-middleware": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/event-dispatcher": "^1.0"
