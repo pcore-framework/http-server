@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer\Middlewares;
 
-use PCore\Http\Message\Response;
+use PCore\HttpMessage\Response;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
