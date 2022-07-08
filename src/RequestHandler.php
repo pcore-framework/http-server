@@ -29,11 +29,11 @@ class RequestHandler implements RequestHandlerInterface
 
     /**
      * @throws ContainerExceptionInterface
-     * @throws ReflectionException
+     * @throws ReflectionException|RouteNotFoundException
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ([] === $this->middlewares) {
+        if ($this->middlewares === []) {
             return $this->handleRequest($request);
         }
         return $this->handleMiddleware(array_shift($this->middlewares), $request);

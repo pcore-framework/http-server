@@ -28,9 +28,12 @@ class FPMResponseEmitter implements ResponseEmitterInterface
         foreach ($psrResponse->getHeader('Set-Cookie') as $cookie) {
             $cookie = Cookie::parse($cookie);
             setcookie(
-                $cookie->getName(), $cookie->getValue(),
-                $cookie->getExpires(), $cookie->getPath(),
-                $cookie->getDomain(), $cookie->isSecure(),
+                $cookie->getName(),
+                $cookie->getValue(),
+                $cookie->getExpires(),
+                $cookie->getPath(),
+                $cookie->getDomain(),
+                $cookie->isSecure(),
                 $cookie->isHttponly()
             );
         }

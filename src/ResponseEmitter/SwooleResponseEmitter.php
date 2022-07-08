@@ -52,10 +52,14 @@ class SwooleResponseEmitter implements ResponseEmitterInterface
     protected function sendCookie(Cookie $cookie, Response $response): void
     {
         $response->cookie(
-            $cookie->getName(), $cookie->getValue(),
-            $cookie->getExpires(), $cookie->getPath(),
-            $cookie->getDomain(), $cookie->isSecure(),
-            $cookie->isHttponly(), $cookie->getSamesite()
+            $cookie->getName(),
+            $cookie->getValue(),
+            $cookie->getExpires(),
+            $cookie->getPath(),
+            $cookie->getDomain(),
+            $cookie->isSecure(),
+            $cookie->isHttponly(),
+            $cookie->getSamesite()
         );
     }
 

@@ -35,7 +35,7 @@ class Kernel
     final public function __construct(
         protected RouteCollector $routeCollector,
         protected ContainerInterface $container,
-        protected ?EventDispatcherInterface $eventDispatcher = null
+        protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
         $this->map(new Router([], $routeCollector));
