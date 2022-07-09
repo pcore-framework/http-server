@@ -71,7 +71,7 @@ class RequestHandler implements RequestHandlerInterface
         if ($handler instanceof MiddlewareInterface) {
             return $handler->process($request, $this);
         }
-        throw new InvalidMiddlewareException(sprintf('Промежуточное программное обеспечение `%s должно реализовывать интерфейс `Psr\Http\Server\MiddlewareInterface`.', $middleware));
+        throw new InvalidMiddlewareException(sprintf('Промежуточное программное обеспечение `%s должен быть экземпляром Psr\Http\Server\MiddlewareInterface.', $middleware));
     }
 
     /**
