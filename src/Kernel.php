@@ -6,6 +6,7 @@ namespace PCore\HttpServer;
 
 use PCore\HttpServer\Events\OnRequest;
 use PCore\Routing\{RouteCollector, Router};
+use PCore\Routing\Exceptions\RouteNotFoundException;
 use Psr\Container\{ContainerExceptionInterface, ContainerInterface};
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
@@ -55,7 +56,7 @@ class Kernel
      * @param ServerRequestInterface $request
      * @return ResponseInterface
      * @throws ContainerExceptionInterface
-     * @throws ReflectionException
+     * @throws ReflectionException|RouteNotFoundException
      */
     public function through(ServerRequestInterface $request): ResponseInterface
     {
