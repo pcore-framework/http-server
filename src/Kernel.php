@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer;
 
-use PCore\HttpServer\Events\OnRequest;
-use PCore\Routing\{RouteCollector, Router};
+use PCore\Http\Server\Events\OnRequest;
 use PCore\Routing\Exceptions\RouteNotFoundException;
-use Psr\Container\{ContainerExceptionInterface, ContainerInterface};
+use PCore\Routing\RouteCollector;
+use PCore\Routing\Router;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use ReflectionException;
+use BadMethodCallException;
 
 /**
  * Class Kernel
@@ -19,6 +22,8 @@ use ReflectionException;
  */
 class Kernel
 {
+
+    protected Router $router;
 
     /**
      * Глобальное промежуточное программное обеспечение
@@ -39,7 +44,7 @@ class Kernel
         protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
-        $this->map(new Router([], $routeCollector));
+        $this->map($this->router = new Router([], $routeCollector));
     }
 
     /**
@@ -65,4 +70,11 @@ class Kernel
         return $response;
     }
 
+    public function __call(string $name, array $arguments)
+    {
+        if (in_array($name, ['get', 'post', 'request', 'any', 'put', 'options', 'delete'])) {
+            return $this->router->{$name}(...$arguments);
+        }
+        throw new BadMethodCallException('Метод ' . $name . ' не существует.');
+    }
 }

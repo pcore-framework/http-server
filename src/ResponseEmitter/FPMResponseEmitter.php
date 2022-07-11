@@ -21,7 +21,7 @@ class FPMResponseEmitter implements ResponseEmitterInterface
      * @param null $sender
      * @return void
      */
-    public function emit(ResponseInterface $psrResponse, $sender = null): void
+    public function emit(ResponseInterface $psrResponse, $sender = null)
     {
         header(sprintf('HTTP/%s %d %s', $psrResponse->getProtocolVersion(), $psrResponse->getStatusCode(), $psrResponse->getReasonPhrase()), true);
         /** @var string[] $cookies */
