@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer;
 
-use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use PCore\HttpServer\Exceptions\InvalidMiddlewareException;
-use PCore\Routing\Route;
-use Psr\Container\{ContainerInterface, ContainerExceptionInterface};
-use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
-use ReflectionException;
 use PCore\Routing\Exceptions\RouteNotFoundException;
+use PCore\Routing\Route;
+use Psr\Container\{ContainerExceptionInterface, ContainerInterface};
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
+use ReflectionException;
 
 /**
  * Class RequestHandler
- * @package PCore\Http\Server
+ * @package PCore\HttpServer
  * @github https://github.com/pcore-framework/http-server
  */
 class RequestHandler implements RequestHandlerInterface

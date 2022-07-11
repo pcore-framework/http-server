@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer;
 
-use PCore\Http\Server\Events\OnRequest;
+use BadMethodCallException;
+use PCore\HttpServer\Events\OnRequest;
 use PCore\Routing\Exceptions\RouteNotFoundException;
 use PCore\Routing\RouteCollector;
 use PCore\Routing\Router;
@@ -13,7 +14,6 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use ReflectionException;
-use BadMethodCallException;
 
 /**
  * Class Kernel
