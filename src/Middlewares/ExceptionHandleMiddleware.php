@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer\Middlewares;
 
-use InvalidArgumentException;
 use PCore\HttpServer\Contracts\{ExceptionHandlerInterface, StoppableExceptionHandlerInterface};
-use Psr\Container\{ContainerExceptionInterface, ContainerInterface};
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use ReflectionException;
+use RuntimeException;
 use Throwable;
-
 
 /**
  * Class ExceptionHandleMiddleware
@@ -20,14 +20,13 @@ use Throwable;
  */
 class ExceptionHandleMiddleware implements MiddlewareInterface
 {
-
     /**
      * @var ExceptionHandlerInterface[]|string[]
      */
     protected array $exceptionHandlers = [];
 
     /**
-     * @throws ContainerExceptionInterface
+     * @param ContainerInterface $container
      * @throws ReflectionException
      */
     public function __construct(ContainerInterface $container)
@@ -48,20 +47,31 @@ class ExceptionHandleMiddleware implements MiddlewareInterface
         try {
             return $handler->handle($request);
         } catch (Throwable $throwable) {
-            $finalResponse = null;
-            foreach ($this->exceptionHandlers as $exceptionHandler) {
-                if ($exceptionHandler->isValid($throwable)) {
-                    if ($response = $exceptionHandler->handle($throwable, $request)) {
-                        $finalResponse = $response;
-                    }
-                    if ($exceptionHandler instanceof StoppableExceptionHandlerInterface) {
-                        return $finalResponse instanceof ResponseInterface
-                            ? $finalResponse
-                            : throw new InvalidArgumentException('Окончательный обработчик исключений должен возвращать экземпляр Psr\Http\Message\ResponseInterface');
-                    }
+            return $this->convertToResponse($throwable, $request);
+        }
+    }
+
+    /**
+     * @param Throwable $throwable
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     * @throws Throwable
+     */
+    protected function convertToResponse(Throwable $throwable, ServerRequestInterface $request): ResponseInterface
+    {
+        $finalResponse = null;
+        foreach ($this->exceptionHandlers as $exceptionHandler) {
+            if ($exceptionHandler->isValid($throwable)) {
+                if ($response = $exceptionHandler->handle($throwable, $request)) {
+                    $finalResponse = $response;
+                }
+                if ($exceptionHandler instanceof StoppableExceptionHandlerInterface) {
+                    return $finalResponse instanceof ResponseInterface
+                        ? $finalResponse
+                        : throw new RuntimeException('Окончательный обработчик исключений должен возвращать экземпляр Psr\Http\Message\ResponseInterface');
                 }
             }
-            throw $throwable;
         }
+        throw $throwable;
     }
 }
