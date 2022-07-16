@@ -8,9 +8,9 @@ use PCore\Aop\Collectors\AbstractCollector;
 use PCore\Di\Context;
 use PCore\Di\Exceptions\NotFoundException;
 use PCore\Di\Reflection;
+use PCore\Routing\{Router};
 use PCore\Routing\Annotations\{AutoController, Controller};
 use PCore\Routing\Contracts\MappingInterface;
-use PCore\Routing\{Router, Route};
 use PCore\Utils\Str;
 use Psr\Container\ContainerExceptionInterface;
 use ReflectionException;
@@ -22,7 +22,11 @@ use ReflectionException;
  */
 class RouteCollector extends AbstractCollector
 {
-
+    /**
+     * Соответствующий текущему контроллеру
+     *
+     * @var Router|null
+     */
     protected static ?Router $router = null;
 
     /**
@@ -31,38 +35,46 @@ class RouteCollector extends AbstractCollector
     protected static string $class = '';
 
     /**
+     * Методы которые необходимы игнорировать
+     */
+    protected const IGNORE_METHODS = [
+        '__construct',
+        '__destruct',
+        '__call',
+        '__callStatic',
+        '__get',
+        '__set',
+        '__isset',
+        '__unset',
+        '__sleep',
+        '__wakeup',
+        '__serialize',
+        '__unserialize',
+        '__toString',
+        '__invoke',
+        '__set_state',
+        '__clone',
+        '__debugInfo'
+    ];
+
+    /**
      * @param string $class
      * @param object $attribute
-     * @return void
-     * @throws NotFoundException
      * @throws ContainerExceptionInterface
      * @throws ReflectionException
      */
     public static function collectClass(string $class, object $attribute): void
     {
+        $routeCollector = Context::getContainer()->make(\PCore\Routing\RouteCollector::class);
         if ($attribute instanceof Controller) {
+            self::$router = new Router($attribute->prefix, middlewares: $attribute->middlewares, routeCollector: $routeCollector);
             self::$class = $class;
-            self::$router = new Router([
-                'prefix' => $attribute->prefix,
-                'middlewares' => $attribute->middlewares,
-            ], Context::getContainer()->make(\PCore\Routing\RouteCollector::class));
-        }
-        if ($attribute instanceof AutoController) {
-            $router = new Router([
-                'prefix' => $attribute->prefix,
-                'middlewares' => $attribute->middlewares,
-            ]);
+        } else if ($attribute instanceof AutoController) {
+            $router = new Router($attribute->prefix, patterns: $attribute->patterns, middlewares: $attribute->middlewares, routeCollector: $routeCollector);
             foreach (Reflection::class($class)->getMethods() as $reflectionMethod) {
-                if ($reflectionMethod->isPublic() && !$reflectionMethod->isStatic() && !$reflectionMethod->isAbstract()) {
-                    $action = $reflectionMethod->getName();
-                    /** @var \PCore\Routing\RouteCollector $routeCollector */
-                    $routeCollector = Context::getContainer()->make(\PCore\Routing\RouteCollector::class);
-                    $routeCollector->add((new Route(
-                        $attribute->methods,
-                        $attribute->prefix . Str::snake($action, '-'),
-                        [$class, $action],
-                        $router,
-                    )));
+                $methodName = $reflectionMethod->getName();
+                if (!self::isIgnoredMethod($methodName) && $reflectionMethod->isPublic() && !$reflectionMethod->isAbstract()) {
+                    $router->request($attribute->prefix . Str::snake($methodName, '-'), [$class, $methodName], $attribute->methods);
                 }
             }
         }
@@ -72,24 +84,25 @@ class RouteCollector extends AbstractCollector
      * @param string $class
      * @param string $method
      * @param object $attribute
-     * @return void
      * @throws NotFoundException
-     * @throws ContainerExceptionInterface
-     * @throws ReflectionException
      */
     public static function collectMethod(string $class, string $method, object $attribute): void
     {
         if ($attribute instanceof MappingInterface && self::$class === $class && !is_null(self::$router)) {
-            /** @var \PCore\Routing\RouteCollector $routeCollector */
-            $routeCollector = Context::getContainer()->make(\PCore\Routing\RouteCollector::class);
-            $routeCollector->add((new Route(
-                $attribute->methods,
-                self::$router->getPrefix() . $attribute->path,
-                [$class, $method],
-                self::$router,
-                $attribute->domain,
-            ))->middlewares($attribute->middlewares));
+            self::$router->request($attribute->path, [$class, $method], $attribute->methods)
+                ->middlewares($attribute->middlewares);
         }
+    }
+
+    /**
+     * Это игнорируемый метод
+     *
+     * @param string $method
+     * @return bool
+     */
+    protected static function isIgnoredMethod(string $method): bool
+    {
+        return in_array($method, self::IGNORE_METHODS);
     }
 
 }

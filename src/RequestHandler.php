@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PCore\HttpServer;
 
-use PCore\HttpServer\Exceptions\InvalidMiddlewareException;
 use PCore\Routing\Exceptions\RouteNotFoundException;
 use PCore\Routing\Route;
 use Psr\Container\{ContainerExceptionInterface, ContainerInterface};
@@ -20,68 +19,63 @@ use ReflectionException;
 class RequestHandler implements RequestHandlerInterface
 {
 
+    /**
+     * Есть ли у контейнера метод make
+     */
+    private bool $hasMakeMethod;
+
     public function __construct(
         protected ContainerInterface $container,
         protected array $middlewares = []
     )
     {
+        $this->hasMakeMethod = method_exists($this->container, 'make');
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws ReflectionException|RouteNotFoundException
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        if ($this->middlewares === []) {
-            return $this->handleRequest($request);
-        }
-        return $this->handleMiddleware(array_shift($this->middlewares), $request);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws ReflectionException|RouteNotFoundException
-     */
-    protected function handleRequest(ServerRequestInterface $request): ResponseInterface
-    {
-        if ($route = $request->getAttribute(Route::class)) {
-            $action = $route->getAction();
-            if (is_string($action)) {
-                $action = explode('@', $action, 2);
-            }
-            $parameters = $route->getParameters();
-            $parameters['request'] = $request;
-            return $this->container->call($action, $parameters);
-        }
-        throw new RouteNotFoundException('Маршрут не совпадает', 404);
-    }
-
-    /**
-     * @param string $middleware
      * @param ServerRequestInterface $request
      * @return ResponseInterface
      * @throws ContainerExceptionInterface
      * @throws ReflectionException
      */
-    protected function handleMiddleware(string $middleware, ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $handler = is_null($this->container) ? new $middleware() : $this->container->make($middleware);
-        if ($handler instanceof MiddlewareInterface) {
-            return $handler->process($request, $this);
+        if ($middleware = array_shift($this->middlewares)) {
+            return $this->handleMiddleware(
+                $this->hasMakeMethod
+                    ? $this->container->make($middleware)
+                    : new $middleware(),
+                $request
+            );
         }
-        throw new InvalidMiddlewareException(sprintf('Промежуточное программное обеспечение `%s должен быть экземпляром Psr\Http\Server\MiddlewareInterface.', $middleware));
+        return $this->handleRequest($request);
     }
 
     /**
-     * Добавить промежуточное программное обеспечение в хвост
-     *
-     * @param array $middlewares
-     * @return void
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     * @throws ReflectionException
      */
-    public function appendMiddlewares(array $middlewares): void
+    protected function handleRequest(ServerRequestInterface $request): ResponseInterface
     {
-        array_push($this->middlewares, ...$middlewares);
+        if ($route = $request->getAttribute(Route::class)) {
+            $parameters = $route->getParameters();
+            $parameters['request'] = $request;
+            return $this->container->call($route->getAction(), $parameters);
+        }
+        throw new RouteNotFoundException('Нет маршрута в атрибутах запроса', 404);
+    }
+
+    /**
+     * Работа с промежуточным ПО
+     *
+     * @param MiddlewareInterface $middleware
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    protected function handleMiddleware(MiddlewareInterface $middleware, ServerRequestInterface $request): ResponseInterface
+    {
+        return $middleware->process($request, $this);
     }
 
     /**
@@ -90,7 +84,7 @@ class RequestHandler implements RequestHandlerInterface
      * @param array $middlewares
      * @return void
      */
-    public function prependMiddlewares(array $middlewares): void
+    public function appendMiddlewares(array $middlewares): void
     {
         array_unshift($this->middlewares, ...$middlewares);
     }

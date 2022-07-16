@@ -44,7 +44,7 @@ class Kernel
         protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
-        $this->map($this->router = new Router([], $routeCollector));
+        $this->map($this->router = new Router(routeCollector: $routeCollector));
     }
 
     /**
