@@ -67,10 +67,20 @@ class RouteCollector extends AbstractCollector
     {
         $routeCollector = Context::getContainer()->make(\PCore\Routing\RouteCollector::class);
         if ($attribute instanceof Controller) {
-            self::$router = new Router($attribute->prefix, middlewares: $attribute->middlewares, routeCollector: $routeCollector);
+            self::$router = new Router(
+                $attribute->prefix,
+                $attribute->patterns,
+                middlewares: $attribute->middlewares,
+                routeCollector: $routeCollector
+            );
             self::$class = $class;
         } else if ($attribute instanceof AutoController) {
-            $router = new Router($attribute->prefix, patterns: $attribute->patterns, middlewares: $attribute->middlewares, routeCollector: $routeCollector);
+            $router = new Router(
+                $attribute->prefix,
+                patterns: $attribute->patterns,
+                middlewares: $attribute->middlewares,
+                routeCollector: $routeCollector
+            );
             foreach (Reflection::class($class)->getMethods() as $reflectionMethod) {
                 $methodName = $reflectionMethod->getName();
                 if (!self::isIgnoredMethod($methodName) && $reflectionMethod->isPublic() && !$reflectionMethod->isAbstract()) {
