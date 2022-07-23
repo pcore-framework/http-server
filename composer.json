@@ -19,10 +19,10 @@
     ],
     "require": {
         "php": "^8.0",
-        "pcore/http-message": "dev-main",
-        "pcore/utils": "dev-main",
-        "pcore/routing": "dev-main",
-        "pcore/di": "dev-main",
+        "pcore/http-message": "1.0.*",
+        "pcore/utils": "1.0.*",
+        "pcore/routing": "1.0.*",
+        "pcore/di": "1.0.*",
         "psr/http-server-middleware": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/event-dispatcher": "^1.0"
