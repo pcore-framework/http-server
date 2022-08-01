@@ -43,7 +43,7 @@ class Kernel
         protected ?EventDispatcherInterface $eventDispatcher = null,
     )
     {
-        $this->map($this->router = new Router(routeCollector: $routeCollector));
+        $this->map(new Router(routeCollector: $routeCollector));
     }
 
     /**
@@ -69,9 +69,12 @@ class Kernel
         return $response;
     }
 
-    public function __call(string $name, array $arguments)
+    /**
+     * @param array|string[] $middlewares
+     */
+    public function setMiddlewares(array $middlewares): void
     {
-        return $this->router->{$name}(...$arguments);
+        $this->middlewares = $middlewares;
     }
 
 }
